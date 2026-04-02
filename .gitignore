@@ -1,0 +1,7 @@
+*.stl
+*.3mf
+*.gcode
+*.bak
+*.tmp
+thumbs.db
+.DS_Store
