@@ -122,16 +122,4 @@ module model_a_cross_brace() {
     }
 }
 
-model_a_cross_brace();
-
-// 디버그: 중앙 브라켓 외형 (투명)
-%translate([-bracket_size/2, -bracket_size/2, 0])
-    cube([bracket_size, bracket_size, bracket_thickness]);
-
-// 디버그: 프레임 외형 (투명)
-%translate([-frame_outer_w/2, -frame_outer_h/2, 0])
-    difference() {
-        cube([frame_outer_w, frame_outer_h, 1]);
-        translate([frame_wall, frame_wall, -0.5])
-            cube([frame_inner_w, frame_inner_h, 2]);
-    }
+// 단독 실행 시 프리뷰 → assembly.scad 사용 권장

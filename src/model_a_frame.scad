@@ -42,7 +42,13 @@ dt_clearance = 0.2;
 sdt_width = 10;
 sdt_depth = 4;
 sdt_taper = 0.8;
-sdt_clearance = 0.15;
+sdt_clearance = 0.08;  // 0.15 → 0.08 (가결합 가능하도록 타이트하게)
+
+// 도브테일 위치: 프레임 바깥쪽 가장자리 (LCD 간섭 방지)
+// frame_wall=6, 도브테일을 외벽 쪽에 배치
+sdt_y_offset_top = frame_outer_h/2 - sdt_width/2 - 0.5;  // 상변 바깥쪽
+sdt_y_offset_bot = frame_outer_h/2 - sdt_width/2 - 0.5;  // 하변 바깥쪽
+sdt_x_offset = frame_outer_w/2 - sdt_width/2 - 0.5;      // 좌/우변 바깥쪽
 
 // --- 모듈 ---
 
@@ -186,13 +192,13 @@ module frame_seg_TL() {
     }
     // X 분할: TL이 오른쪽에 male 돌출
     intersection() {
-        translate([split_x1, hh - frame_wall/2 - sdt_width/2, 0])
+        translate([split_x1, sdt_y_offset_top, 0])
             seg_dovetail_male();
         cut_box(split_x1, 0, split_x1 + sdt_depth + 1, hh);
     }
     // Y 분할: TL이 아래쪽에 male 돌출
     intersection() {
-        translate([-(hw - frame_wall/2), 0, 0])
+        translate([-sdt_x_offset, 0, 0])
             rotate([0, 0, -90])
                 seg_dovetail_male();
         cut_box(-hw, -sdt_depth - 1, split_x1, 0);
@@ -207,12 +213,12 @@ module frame_seg_TC() {
             cut_box(split_x1, 0, split_x2, hh);
         }
         // 왼쪽(split_x1)에 female: TL의 male을 받음
-        translate([split_x1, hh - frame_wall/2 - sdt_width/2, 0])
+        translate([split_x1, sdt_y_offset_top, 0])
             seg_dovetail_female();
     }
     // 오른쪽(split_x2)에 male: TR과 결합
     intersection() {
-        translate([split_x2, hh - frame_wall/2 - sdt_width/2, 0])
+        translate([split_x2, sdt_y_offset_top, 0])
             seg_dovetail_male();
         cut_box(split_x2, 0, split_x2 + sdt_depth + 1, hh);
     }
@@ -229,12 +235,12 @@ module frame_seg_TR() {
             }
         }
         // 왼쪽(split_x2)에 female: TC의 male을 받음
-        translate([split_x2, hh - frame_wall/2 - sdt_width/2, 0])
+        translate([split_x2, sdt_y_offset_top, 0])
             seg_dovetail_female();
     }
     // Y 분할: 아래쪽에 male → BR과 결합
     intersection() {
-        translate([(hw - frame_wall/2), 0, 0])
+        translate([sdt_x_offset, 0, 0])
             rotate([0, 0, 90])
                 seg_dovetail_male();
         cut_box(split_x2, -sdt_depth - 1, hw, 0);
@@ -249,13 +255,13 @@ module frame_seg_BL() {
             cut_box(-hw, -hh, split_x1, 0);
         }
         // 위쪽(y=0)에 female: TL의 male을 받음
-        translate([-(hw - frame_wall/2), 0, 0])
+        translate([-sdt_x_offset, 0, 0])
             rotate([0, 0, -90])
                 seg_dovetail_female();
     }
     // 오른쪽(split_x1)에 male → BC와 결합
     intersection() {
-        translate([split_x1, -(hh - frame_wall/2 - sdt_width/2), 0])
+        translate([split_x1, -(sdt_y_offset_top), 0])
             seg_dovetail_male();
         cut_box(split_x1, -hh, split_x1 + sdt_depth + 1, 0);
     }
@@ -269,12 +275,12 @@ module frame_seg_BC() {
             cut_box(split_x1, -hh, split_x2, 0);
         }
         // 왼쪽(split_x1)에 female: BL의 male을 받음
-        translate([split_x1, -(hh - frame_wall/2 - sdt_width/2), 0])
+        translate([split_x1, -(sdt_y_offset_top), 0])
             seg_dovetail_female();
     }
     // 오른쪽(split_x2)에 male → BR과 결합
     intersection() {
-        translate([split_x2, -(hh - frame_wall/2 - sdt_width/2), 0])
+        translate([split_x2, -(sdt_y_offset_top), 0])
             seg_dovetail_male();
         cut_box(split_x2, -hh, split_x2 + sdt_depth + 1, 0);
     }
@@ -290,10 +296,10 @@ module frame_seg_BR() {
             }
         }
         // 왼쪽(split_x2)에 female: BC의 male을 받음
-        translate([split_x2, -(hh - frame_wall/2 - sdt_width/2), 0])
+        translate([split_x2, -(sdt_y_offset_top), 0])
             seg_dovetail_female();
         // 위쪽(y=0)에 female: TR의 male을 받음
-        translate([(hw - frame_wall/2), 0, 0])
+        translate([sdt_x_offset, 0, 0])
             rotate([0, 0, 90])
                 seg_dovetail_female();
     }
@@ -310,18 +316,4 @@ module model_a_frame_assembly() {
     color("DarkSlateGray", 0.9) frame_seg_BR();
 }
 
-model_a_frame_assembly();
-
-// 디버그: LCD 패널 (투명 빨강)
-%color("Red", 0.3)
-    translate([-lcd_w/2, -lcd_h/2, frame_lip_depth])
-        cube([lcd_w, lcd_h, lcd_d]);
-
-// 디버그: 분할선 표시
-%color("Yellow", 0.3) {
-    translate([split_x1, -hh, -0.5]) cube([0.5, frame_outer_h, frame_depth + 1]);
-    translate([split_x2, -hh, -0.5]) cube([0.5, frame_outer_h, frame_depth + 1]);
-    translate([-hw, -0.25, -0.5]) cube([frame_outer_w, 0.5, frame_depth + 1]);
-}
-
-echo(str("세그먼트 크기: ", seg_w, " x ", seg_h, " (180mm 이내: ", seg_w < 180 && seg_h < 180 ? "OK" : "NG", ")"));
+// 단독 실행 시 프리뷰 → assembly.scad 사용 권장

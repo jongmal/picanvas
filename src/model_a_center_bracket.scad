@@ -162,8 +162,4 @@ module model_a_center_bracket() {
         cross_bar_connectors();
 }
 
-model_a_center_bracket();
-
-// 디버그: 턴테이블 외형 표시
-%translate([-tb_size/2, -tb_size/2, -tb_thickness])
-    cube([tb_size, tb_size, tb_thickness]);
+// 단독 실행 시 프리뷰 → assembly.scad 사용 권장

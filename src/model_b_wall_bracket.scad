@@ -167,12 +167,4 @@ module model_b_wall_bracket() {
             motor_side_clamp();
 }
 
-model_b_wall_bracket();
-
-// 디버그: 턴테이블 베어링 (투명)
-%translate([-tb_size/2, -tb_size/2, wall_plate_thickness])
-    cube([tb_size, tb_size, tb_thickness]);
-
-// 디버그: 모터 (투명)
-%translate([motor_offset_x - motor_w/2, motor_offset_y - motor_h/2, motor_clamp_wall])
-    cube([motor_w, motor_h, motor_d]);
+// 단독 실행 시 프리뷰 → assembly.scad 사용 권장
