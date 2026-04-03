@@ -12,27 +12,27 @@ lcd_h = 216.25;
 lcd_d = 3.2;
 
 // 프레임
-frame_bezel = 3;        // 전면 오버랩
-frame_wall = 6;         // 프레임 벽 두께
+frame_bezel = 3;
+frame_wall = 6;
 frame_inner_w = lcd_w;
 frame_inner_h = lcd_h;
 frame_outer_w = lcd_w + frame_wall * 2;
 frame_outer_h = lcd_h + frame_wall * 2;
 
 // 십자 보강재
-cross_bar_width = 15;     // 바 너비
-cross_bar_thickness = bracket_thickness;  // 브라켓과 동일 두께
+cross_bar_width = 15;
+cross_bar_thickness = bracket_thickness;
 
-// 도브테일 파라미터 (center_bracket과 맞춤)
+// 도브테일 파라미터
 dt_width = 15;
-dt_depth = 8;
-dt_taper = 1;  // 사다리꼴 기울기
+dt_depth = 5;       // 프레임 벽 두께 6mm 이내
+dt_taper = 1;
 
 // --- 모듈 ---
 
 // 도브테일 암 (center_bracket 쪽 연결)
 module dovetail_female(height) {
-    clearance = 0.2;  // 끼워맞춤 여유
+    clearance = 0.2;
     linear_extrude(height = height)
         polygon([
             [-(dt_width/2 - dt_taper) - clearance, 0],
@@ -42,7 +42,7 @@ module dovetail_female(height) {
         ]);
 }
 
-// 프레임 연결용 도브테일 수 (끝단)
+// 프레임 벽에 삽입되는 도브테일 수 (끝단)
 module dovetail_male_end() {
     linear_extrude(height = cross_bar_thickness)
         polygon([
@@ -55,9 +55,9 @@ module dovetail_male_end() {
 
 // 수평 바 (좌우, X축 방향)
 module horizontal_bar() {
-    bar_length_half = frame_outer_w / 2 - bracket_size / 2;
+    // 바 길이: 중앙 브라켓 가장자리 → 프레임 내벽 (LCD 가장자리)
+    bar_length_half = lcd_w / 2 - bracket_size / 2;
 
-    // 오른쪽 바
     module half_bar() {
         difference() {
             translate([0, -cross_bar_width/2, 0])
@@ -70,7 +70,7 @@ module horizontal_bar() {
                         cube([dt_width + 0.2, dt_depth + 0.2, cross_bar_thickness + 1]);
         }
 
-        // 프레임 연결 도브테일 (끝단)
+        // 프레임 벽 삽입용 도브테일 (끝단 → 벽 안쪽으로 돌출)
         translate([bar_length_half, 0, 0])
             dovetail_male_end();
     }
@@ -85,7 +85,7 @@ module horizontal_bar() {
 
 // 수직 바 (상하, Y축 방향)
 module vertical_bar() {
-    bar_length_half = frame_outer_h / 2 - bracket_size / 2;
+    bar_length_half = lcd_h / 2 - bracket_size / 2;
 
     module half_bar() {
         difference() {
@@ -99,7 +99,7 @@ module vertical_bar() {
                         cube([dt_width + 0.2, dt_depth + 0.2, cross_bar_thickness + 1]);
         }
 
-        // 프레임 연결 도브테일 (끝단)
+        // 프레임 벽 삽입용 도브테일 (끝단)
         translate([0, bar_length_half, 0])
             rotate([0, 0, 90])
                 dovetail_male_end();

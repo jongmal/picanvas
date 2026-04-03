@@ -116,7 +116,7 @@ module center_bracket() {
 // 십자 바 연결용 도브테일 (수) - 4방향
 module cross_bar_connectors() {
     connector_width = 15;
-    connector_depth = 8;
+    connector_depth = 5;   // 8 → 5 (프레임 벽 두께와 맞춤)
     connector_height = bracket_thickness;
 
     // 도브테일 프로파일 (사다리꼴)

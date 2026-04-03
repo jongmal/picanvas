@@ -34,21 +34,22 @@ seg_h = frame_outer_h / 2;  // ~114.13 < 180 OK
 
 // 도브테일 (십자 보강재 연결용)
 dt_width = 15;
-dt_depth = 8;
+dt_depth = 5;       // 8 → 5 (frame_wall=6 이내, 관통 방지)
 dt_taper = 1;
 dt_clearance = 0.2;
 
 // 세그먼트간 도브테일 (프레임 분할선)
-sdt_width = 10;
+// 프레임 벽 두께=6mm 이내에 도브테일이 완전히 수용되어야 함
+sdt_width = 5;          // 10 → 5 (벽 두께 6mm 이내)
 sdt_depth = 4;
-sdt_taper = 0.8;
-sdt_clearance = 0.08;  // 0.15 → 0.08 (가결합 가능하도록 타이트하게)
+sdt_taper = 0.5;        // 0.8 → 0.5 (폭 축소에 맞춤)
+sdt_clearance = 0.08;
 
-// 도브테일 위치: 프레임 바깥쪽 가장자리 (LCD 간섭 방지)
-// frame_wall=6, 도브테일을 외벽 쪽에 배치
-sdt_y_offset_top = frame_outer_h/2 - sdt_width/2 - 0.5;  // 상변 바깥쪽
-sdt_y_offset_bot = frame_outer_h/2 - sdt_width/2 - 0.5;  // 하변 바깥쪽
-sdt_x_offset = frame_outer_w/2 - sdt_width/2 - 0.5;      // 좌/우변 바깥쪽
+// 도브테일 위치: 프레임 벽 내부에만 배치 (LCD 간섭 완전 방지)
+// 안쪽 끝 = LCD 가장자리 + 0.3mm 여유, 바깥 끝 = 벽 바깥 - 0.7mm 여유
+sdt_y_offset_top = lcd_h/2 + sdt_width/2 + 0.3;  // 상변
+sdt_y_offset_bot = lcd_h/2 + sdt_width/2 + 0.3;  // 하변
+sdt_x_offset = lcd_w/2 + sdt_width/2 + 0.3;       // 좌/우변
 
 // --- 모듈 ---
 
@@ -152,14 +153,19 @@ module full_frame() {
             cube([lcd_w, lcd_h, frame_depth]);
 
         // 십자 보강재 도브테일 슬롯 - 4개
-        translate([lcd_w/2 + frame_wall, 0, 0])
-            rotate([0, 0, 180]) dovetail_slot();
-        translate([-(lcd_w/2 + frame_wall), 0, 0])
+        // 슬롯은 프레임 내벽(lcd 가장자리)에서 벽 안쪽으로 파짐
+        // 오른쪽 벽: 내벽 위치에서 바깥(+X) 방향으로 파기
+        translate([lcd_w/2, 0, 0])
             dovetail_slot();
-        translate([0, lcd_h/2 + frame_wall, 0])
-            rotate([0, 0, -90]) dovetail_slot();
-        translate([0, -(lcd_h/2 + frame_wall), 0])
+        // 왼쪽 벽
+        translate([-lcd_w/2, 0, 0])
+            rotate([0, 0, 180]) dovetail_slot();
+        // 위쪽 벽
+        translate([0, lcd_h/2, 0])
             rotate([0, 0, 90]) dovetail_slot();
+        // 아래쪽 벽
+        translate([0, -lcd_h/2, 0])
+            rotate([0, 0, -90]) dovetail_slot();
     }
 }
 
